@@ -9,11 +9,22 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/adapters/nemotron.mjs && node --check src/core/schema-validator.mjs",
-    "validate:schemas": "node scripts/validate-schemas.mjs"
+    "test:gate1": "node --test tests/job-state.test.mjs tests/idempotency.test.mjs tests/queue-lease.test.mjs tests/migration.test.mjs tests/integration/job-lifecycle.test.mjs",
+    "check": "node --check src/adapters/nemotron.mjs && node --check src/core/schema-validator.mjs && node --check src/core/config.mjs && node --check src/db/pool.mjs && node --check src/db/migrate.mjs && node --check src/services/job-state.mjs && node --check src/services/idempotency.mjs && node --check src/services/queue-lease.mjs && node --check src/services/retry.mjs && node --check src/services/cancellation.mjs",
+    "validate:schemas": "node scripts/validate-schemas.mjs",
+    "migrate": "node scripts/migrate.mjs",
+    "migrate:up": "node scripts/migrate.mjs up",
+    "migrate:down": "node scripts/migrate.mjs down",
+    "migrate:status": "node scripts/migrate.mjs status",
+    "migrate:create": "node scripts/migrate.mjs create",
+    "db:check": "node -e \"import('./src/db/pool.mjs').then(m => m.healthCheck().then(r => console.log(r))).catch(e => {console.error(e); process.exit(1)})"
   },
   "dependencies": {
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "testcontainers": "^10.13.0"
   }
 }

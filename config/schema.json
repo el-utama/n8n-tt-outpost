@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/config.schema.json",
+  "title": "RuntimeConfig",
+  "type": "object",
+  "required": [
+    "nodeEnv",
+    "featureStage",
+    "enableF5Publisher",
+    "enableRealProviderCalls",
+    "timezone",
+    "database",
+    "nemotron",
+    "telegram",
+    "artifactStorage",
+    "logging",
+    "scheduler",
+    "publisher"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "nodeEnv": {
+      "type": "string",
+      "enum": ["development", "test", "production"],
+      "description": "Application environment"
+    },
+    "featureStage": {
+      "type": "string",
+      "enum": ["MVP_MANUAL", "F4_SCHEDULER", "F5_PUBLISHER"],
+      "description": "Current feature stage gate"
+    },
+    "enableF5Publisher": {
+      "type": "boolean",
+      "description": "Enable F5 publisher features (requires gate approval)"
+    },
+    "enableRealProviderCalls": {
+      "type": "boolean",
+      "description": "Allow external provider calls (Nemotron, platform APIs)"
+    },
+    "timezone": {
+      "type": "string",
+      "pattern": "^[A-Za-z_]+/[A-Za-z_]+$",
+      "description": "IANA timezone identifier (e.g., Asia/Jakarta)"
+    },
+    "database": {
+      "type": "object",
+      "required": ["url", "pool"],
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^postgresql://",
+          "description": "PostgreSQL connection URL"
+        },
+        "pool": {
+          "type": "object",
+          "required": ["min", "max", "idleTimeoutMs", "connectionTimeoutMs"],
+          "additionalProperties": false,
+          "properties": {
+            "min": { "type": "integer", "minimum": 0, "maximum": 50 },
+            "max": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "idleTimeoutMs": { "type": "integer", "minimum": 1000 },
+            "connectionTimeoutMs": { "type": "integer", "minimum": 1000 }
+          }
+        }
+      }
+    },
+    "nemotron": {
+      "type": "object",
+      "required": ["baseUrl", "apiKey"],
+      "additionalProperties": false,
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Nemotron API base URL (OpenAI-compatible)"
+        },
+        "apiKey": {
+          "type": "string",
+          "minLength": 1,
+          "description": "API key for Nemotron endpoint"
+        },
+        "modelId": {
+          "type": "string",
+          "description": "Model identifier (selected via capability probe)"
+        },
+        "servingEngine": {
+          "type": "string",
+          "enum": ["vllm", "triton", "tgi", "openai", "other"],
+          "description": "Serving engine type"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300,
+          "default": 30
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0
+        },
+        "topP": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1
+        },
+        "maxOutputTokens": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128000,
+          "default": 4096
+        }
+      }
+    },
+    "telegram": {
+      "type": "object",
+      "required": ["botToken", "allowlist"],
+      "additionalProperties": false,
+      "properties": {
+        "botToken": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Telegram Bot API token"
+        },
+        "webhookUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Webhook URL for receiving updates"
+        },
+        "allowlist": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^\\d+$" },
+          "minItems": 1,
+          "description": "Allowed Telegram user/chat IDs"
+        }
+      }
+    },
+    "artifactStorage": {
+      "type": "object",
+      "required": ["path", "retentionDays", "downloadExpiryHours"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Absolute path to artifact storage directory"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 30
+        },
+        "downloadExpiryHours": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 168,
+          "default": 24
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "required": ["level", "format", "redactSecrets"],
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "pretty"],
+          "default": "json"
+        },
+        "redactSecrets": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "required": ["enabled", "concurrency", "leaseTtlSeconds", "maxRetries"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 3
+        },
+        "leaseTtlSeconds": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3600,
+          "default": 300
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3
+        }
+      }
+    },
+    "publisher": {
+      "type": "object",
+      "required": ["enabled", "tiktok", "instagram", "facebook"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "tiktok": { "type": "boolean", "default": false },
+        "instagram": { "type": "boolean", "default": false },
+        "facebook": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}
