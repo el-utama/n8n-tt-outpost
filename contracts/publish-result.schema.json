@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/publish-result.schema.json",
+  "title": "PublishResult",
+  "type": "object",
+  "required": ["publish_result_id", "publish_intent_id", "platform", "status", "idempotency_key", "adapter_version", "attempt", "created_at"],
+  "properties": {
+    "publish_result_id": {"type": "string", "format": "uuid"},
+    "publish_intent_id": {"type": "string", "format": "uuid"},
+    "platform": {"type": "string", "enum": ["tiktok", "instagram", "facebook"]},
+    "status": {"type": "string", "enum": ["PENDING", "UPLOADING", "PUBLISHED", "FAILED_RETRYABLE", "FAILED_FINAL", "SKIPPED", "STOPPED"]},
+    "remote_post_id": {"type": ["string", "null"]},
+    "remote_url": {"type": ["string", "null"], "format": "uri"},
+    "idempotency_key": {"type": "string"},
+    "adapter_version": {"type": "string"},
+    "attempt": {"type": "integer", "minimum": 1},
+    "error": {
+      "type": ["object", "null"],
+      "required": ["code", "message", "retryable"],
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "retryable": {"type": "boolean"},
+        "provider_status": {"type": ["integer", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "verified_at": {"type": ["string", "null"], "format": "date-time"},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}

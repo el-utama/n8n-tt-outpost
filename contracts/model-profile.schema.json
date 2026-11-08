@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/model-profile.schema.json",
+  "title": "ModelProfile",
+  "description": "Versioned runtime profile untuk Nemotron atau model-compatible endpoint.",
+  "type": "object",
+  "required": ["profile_id", "provider", "model_id", "model_revision", "endpoint_kind", "serving_engine", "context_limit", "tool_calling", "reasoning_mode", "status", "created_at"],
+  "properties": {
+    "profile_id": {"type": "string", "pattern": "^[a-z0-9._-]+$"},
+    "provider": {"type": "string", "enum": ["nvidia", "local", "remote_compatible"]},
+    "model_id": {"type": "string", "minLength": 1},
+    "model_revision": {"type": "string", "minLength": 1},
+    "endpoint_kind": {"type": "string", "enum": ["local", "remote"]},
+    "base_url_reference": {"type": "string", "description": "Reference name only; never a secret or token."},
+    "serving_engine": {"type": "string", "enum": ["vllm", "ollama", "sglang", "llama_cpp", "other"]},
+    "serving_engine_version": {"type": ["string", "null"]},
+    "quantization": {"type": ["string", "null"]},
+    "context_limit": {"type": "integer", "minimum": 1024},
+    "max_output_tokens": {"type": "integer", "minimum": 128, "maximum": 131072},
+    "tool_calling": {"type": "boolean"},
+    "tool_parser": {"type": ["string", "null"]},
+    "structured_output": {"type": "boolean"},
+    "reasoning_mode": {"type": "string", "enum": ["on", "off", "configurable"]},
+    "temperature": {"type": "number", "minimum": 0, "maximum": 2},
+    "top_p": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+    "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+    "hardware_probe": {
+      "type": "object",
+      "properties": {
+        "gpu_name": {"type": ["string", "null"]},
+        "vram_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "ram_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "latency_ms_p50": {"type": ["number", "null"], "minimum": 0},
+        "tokens_per_second": {"type": ["number", "null"], "minimum": 0},
+        "probe_at": {"type": ["string", "null"], "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    "known_limitations": {"type": "array", "items": {"type": "string"}},
+    "status": {"type": "string", "enum": ["CANDIDATE", "VALIDATED", "DISABLED"]},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}

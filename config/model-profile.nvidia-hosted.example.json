@@ -1,0 +1,35 @@
+{
+  "profile_id": "nemotron-nvidia-hosted-candidate",
+  "provider": "nvidia",
+  "model_id": "REPLACE_WITH_NVIDIA_CATALOG_MODEL_ID",
+  "model_revision": "PIN_PROVIDER_REVISION_OR_CATALOG_VERSION",
+  "endpoint_kind": "remote",
+  "base_url_reference": "NVIDIA_BASE_URL",
+  "serving_engine": "other",
+  "serving_engine_version": null,
+  "quantization": null,
+  "context_limit": 32768,
+  "max_output_tokens": 8192,
+  "tool_calling": true,
+  "tool_parser": null,
+  "structured_output": true,
+  "reasoning_mode": "configurable",
+  "temperature": 0.6,
+  "top_p": 0.95,
+  "timeout_seconds": 120,
+  "hardware_probe": {
+    "gpu_name": null,
+    "vram_bytes": null,
+    "ram_bytes": null,
+    "latency_ms_p50": null,
+    "tokens_per_second": null,
+    "probe_at": null
+  },
+  "known_limitations": [
+    "Endpoint and model ID must be verified from the NVIDIA/OpenCode catalog.",
+    "Runtime credential must be supplied by secret manager or environment reference.",
+    "OpenCode Desktop credential storage is not automatically available to n8n runtime."
+  ],
+  "status": "CANDIDATE",
+  "created_at": "2026-11-08T00:00:00Z"
+}

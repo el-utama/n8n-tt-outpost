@@ -1,0 +1,15 @@
+{
+  "type": "function",
+  "function": {
+    "name": "read_project_file",
+    "description": "Read a file inside the approved workspace.",
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relative_path"],
+      "properties": {
+        "relative_path": {"type": "string", "pattern": "^[^:]*$"}
+      }
+    }
+  }
+}

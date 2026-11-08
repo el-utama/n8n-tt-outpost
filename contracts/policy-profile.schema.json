@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/policy-profile.schema.json",
+  "title": "PolicyProfile",
+  "type": "object",
+  "required": ["policy_profile_id", "user_id", "mode", "timezone", "start_at", "duration_days", "max_posts_per_day", "max_posts_per_platform_per_day", "minimum_interval_minutes", "daily_time_window", "active_days", "active_platforms", "max_batch_items", "retry_limit", "duplicate_prevention", "emergency_stop", "emergency_stop_authority", "version"],
+  "properties": {
+    "policy_profile_id": {"type": "string", "format": "uuid"},
+    "user_id": {"type": "string"},
+    "mode": {"type": "string", "enum": ["SEMI_AUTO", "FULL_AUTO"]},
+    "timezone": {"type": "string", "const": "Asia/Jakarta"},
+    "start_at": {"type": "string", "format": "date-time"},
+    "duration_days": {"type": "integer", "minimum": 1, "maximum": 365},
+    "max_posts_per_day": {"type": "integer", "minimum": 1, "maximum": 100},
+    "max_posts_per_platform_per_day": {"type": "integer", "minimum": 1, "maximum": 100},
+    "minimum_interval_minutes": {"type": "integer", "minimum": 1, "maximum": 10080},
+    "daily_time_window": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$"},
+        "end": {"type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$"}
+      },
+      "additionalProperties": false
+    },
+    "active_days": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "enum": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]}
+    },
+    "active_platforms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "enum": ["tiktok", "instagram", "facebook"]}
+    },
+    "max_batch_items": {"type": "integer", "minimum": 1, "maximum": 50},
+    "retry_limit": {"type": "integer", "minimum": 0, "maximum": 5},
+    "duplicate_prevention": {"type": "boolean", "const": true},
+    "emergency_stop": {"type": "boolean"},
+    "emergency_stop_authority": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "confirmed_at": {"type": ["string", "null"], "format": "date-time"},
+    "version": {"type": "integer", "minimum": 1}
+  },
+  "additionalProperties": false
+}

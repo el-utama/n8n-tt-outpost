@@ -1,0 +1,19 @@
+{
+  "name": "n8n-tt-outpost",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Controlled implementation foundation for n8n-tt-outpost and Nemotron-compatible agents.",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/adapters/nemotron.mjs && node --check src/core/schema-validator.mjs",
+    "validate:schemas": "node scripts/validate-schemas.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

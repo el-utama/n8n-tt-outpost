@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/tool-call.schema.json",
+  "title": "NormalizedToolCall",
+  "type": "object",
+  "required": ["id", "name", "arguments"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 200},
+    "name": {"type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_.-]{0,127}$"},
+    "arguments": {"type": "object"}
+  },
+  "additionalProperties": false
+}

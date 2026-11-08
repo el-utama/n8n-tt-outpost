@@ -1,0 +1,42 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "docs/NEMOTRON_OPERATOR_GUIDE.md",
+    "00_AI_SOURCE_OF_TRUTH.md"
+  ],
+  "model": "nemotron-local/REPLACE_WITH_MODEL_ID",
+  "small_model": "nemotron-local/REPLACE_WITH_SMALL_MODEL_ID",
+  "provider": {
+    "nemotron-local": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Nemotron Local / OpenAI-Compatible",
+      "options": {
+        "baseURL": "{env:NEMOTRON_BASE_URL}",
+        "apiKey": "{env:NEMOTRON_API_KEY}",
+        "timeout": 120000,
+        "headerTimeout": 30000,
+        "chunkTimeout": 30000
+      },
+      "models": {
+        "REPLACE_WITH_MODEL_ID": {
+          "name": "Nemotron — replace with /v1/models id",
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        },
+        "REPLACE_WITH_SMALL_MODEL_ID": {
+          "name": "Nemotron small model — replace with /v1/models id",
+          "limit": {
+            "context": 16384,
+            "output": 4096
+          }
+        }
+      }
+    }
+  },
+  "tools": {
+    "write": true,
+    "bash": true
+  }
+}

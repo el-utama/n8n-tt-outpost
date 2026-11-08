@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/platform-payload.schema.json",
+  "title": "PlatformPayload",
+  "type": "object",
+  "required": ["payload_id", "publish_intent_id", "platform", "adapter_version", "artifact_uri", "caption", "idempotency_key", "created_at"],
+  "properties": {
+    "payload_id": {"type": "string", "format": "uuid"},
+    "publish_intent_id": {"type": "string", "format": "uuid"},
+    "platform": {"type": "string", "enum": ["tiktok", "instagram", "facebook"]},
+    "adapter_version": {"type": "string"},
+    "account_id": {"type": "string"},
+    "artifact_uri": {"type": "string", "pattern": "^artifact://[A-Za-z0-9._/-]+$"},
+    "thumbnail_uri": {"type": ["string", "null"], "pattern": "^artifact://[A-Za-z0-9._/-]+$"},
+    "title": {"type": ["string", "null"], "maxLength": 500},
+    "caption": {"type": "string", "minLength": 1, "maxLength": 10000},
+    "hashtags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "mentions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "privacy": {"type": ["string", "null"]},
+    "scheduled_at": {"type": ["string", "null"], "format": "date-time"},
+    "platform_options": {"type": "object", "additionalProperties": true},
+    "idempotency_key": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}

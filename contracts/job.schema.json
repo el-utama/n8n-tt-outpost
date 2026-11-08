@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/job.schema.json",
+  "title": "JobRecord",
+  "description": "Kontrak data utama untuk lifecycle eksekusi job produksi konten di n8n-tt-outpost.",
+  "type": "object",
+  "required": [
+    "job_id",
+    "user_id",
+    "correlation_id",
+    "theme_raw",
+    "status",
+    "current_step",
+    "attempt",
+    "max_attempts",
+    "idempotency_key",
+    "timezone",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifier unik global job (UUID v4)."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Telegram chat ID atau identifier unik pengguna yang terotorisasi dalam allowlist."
+    },
+    "account_id": {
+      "type": ["string", "null"],
+      "description": "ID referensi ke metadata akun platform yang ditautkan (platform-neutral), jika ada."
+    },
+    "theme_raw": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 500,
+      "description": "Teks tema asli yang dikirimkan user melalui Telegram."
+    },
+    "theme_normalized": {
+      "type": ["string", "null"],
+      "description": "Teks tema yang telah dibersihkan dan dinormalisasi oleh Theme Processor."
+    },
+    "content_profile": {
+      "type": "object",
+      "description": "Preferensi dan batas profil konten yang diminta untuk job ini.",
+      "required": ["language", "target_format", "target_duration_sec"],
+      "properties": {
+        "language": {
+          "type": "string",
+          "default": "id-ID",
+          "description": "Bahasa konten utama."
+        },
+        "target_format": {
+          "type": "string",
+          "enum": ["video_9_16", "carousel_5_images", "both"],
+          "default": "video_9_16"
+        },
+        "target_duration_sec": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 180,
+          "default": 45
+        },
+        "tone": {
+          "type": "string",
+          "default": "informative_engaging"
+        }
+      },
+      "additionalProperties": false
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "ID korelasi lintas Telegram, n8n executions, skill calls, dan audit events."
+    },
+    "feature_stage": {
+      "type": "string",
+      "enum": ["MVP_MANUAL", "F4_SCHEDULER", "F5_PUBLISHER"],
+      "default": "MVP_MANUAL"
+    },
+    "status": {
+      "type": "string",
+      "description": "State machine job yang wajib diikuti oleh Orchestrator.",
+      "enum": [
+        "RECEIVED",
+        "VALIDATING",
+        "GENERATING_IDEATION",
+        "SOURCING_MEDIA",
+        "GENERATING_CAPTION",
+        "GENERATING_TTS",
+        "COMPOSING_VIDEO",
+        "VALIDATING_ARTIFACT",
+        "DELIVERING",
+        "COMPLETED",
+        "FAILED_RETRYABLE",
+        "FAILED_FINAL",
+        "CANCEL_REQUESTED",
+        "CANCELLED"
+      ]
+    },
+    "current_step": {
+      "type": "string",
+      "description": "Nama sub-modul atau skill yang sedang aktif mengeksekusi job."
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Nomor percobaan eksekusi saat ini."
+    },
+    "max_attempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "default": 3,
+      "description": "Batas maksimum percobaan untuk kegagalan retryable."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Kunci unik untuk mencegah eksekusi ganda dari pesan Telegram atau pemicu jadwal yang sama."
+    },
+    "policy_decision": {
+      "type": ["string", "null"],
+      "enum": ["MANUAL", "SEMI_AUTO", "FULL_AUTO", "DENIED", "HOLD", null],
+      "description": "Keputusan deterministik mode publishing yang diizinkan untuk job ini."
+    },
+    "content_package_id": {
+      "type": ["string", "null"],
+      "description": "Logical URI atau UUID ke paket konten hasil kompilasi (misal: artifact://content-package/<uuid>)."
+    },
+    "publish_intent_id": {
+      "type": ["string", "null"],
+      "description": "UUID intent publikasi jika job dilanjutkan ke publishing layer (F5)."
+    },
+    "error": {
+      "type": ["object", "null"],
+      "description": "Informasi kesalahan terstruktur bila job mengalami error.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Kode error standar mesin (misal: ERR_TTS_CONNECTIVITY, ERR_MEDIA_QUOTA)."
+        },
+        "message": {
+          "type": "string",
+          "description": "Pesan deskripsi error yang aman (tanpa credential/stack trace)."
+        },
+        "step": {
+          "type": "string",
+          "description": "Step modul tempat terjadinya kegagalan."
+        },
+        "retryable": {
+          "type": "boolean",
+          "description": "Menunjukkan apakah error dapat dicoba ulang secara otomatis."
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["code", "message", "step", "retryable", "occurred_at"],
+      "additionalProperties": false
+    },
+    "created_by": {
+      "type": "string",
+      "enum": ["telegram_user", "internal_scheduler", "admin_retry"],
+      "default": "telegram_user"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "Asia/Jakarta"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "cancel_requested_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "retention_until": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Batas waktu penyimpanan artefak sebelum pembersihan otomatis."
+    }
+  },
+  "additionalProperties": false
+}

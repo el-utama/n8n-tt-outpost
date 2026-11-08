@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/content-package.schema.json",
+  "title": "ContentPackage",
+  "description": "Kontrak paket konten yang menjadi sumber bersama untuk delivery Manual dan cross-post adapter TikTok, Instagram, dan Facebook.",
+  "type": "object",
+  "required": [
+    "content_package_id",
+    "job_id",
+    "schema_version",
+    "language",
+    "content_status",
+    "content_profile_snapshot",
+    "ideation",
+    "caption",
+    "media_assets",
+    "artifacts",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "content_package_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "job_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.\\d+\\.\\d+$",
+      "default": "1.0.0"
+    },
+    "language": {
+      "type": "string",
+      "default": "id-ID"
+    },
+    "content_status": {
+      "type": "string",
+      "enum": ["DRAFT", "QC_PASSED", "READY_FOR_DELIVERY", "READY_FOR_PUBLISH", "REJECTED"]
+    },
+    "content_profile_snapshot": {
+      "type": "object",
+      "description": "Snapshot immutable dari profile yang dipakai saat package dibuat.",
+      "required": ["profile_id", "language", "target_format", "target_duration_sec", "tone"],
+      "properties": {
+        "profile_id": {"type": "string"},
+        "language": {"type": "string"},
+        "target_format": {
+          "type": "string",
+          "enum": ["video_9_16", "carousel_5_images", "both"]
+        },
+        "target_duration_sec": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 180
+        },
+        "tone": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "unverified_notice": {
+      "type": ["string", "null"],
+      "description": "Peringatan bahwa ideation/fakta belum diverifikasi sumber eksternal."
+    },
+    "ideation": {
+      "type": "object",
+      "required": ["title", "hook", "scenes", "cta", "keywords", "is_fact_checked"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "hook": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "scenes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": ["sequence", "narration", "visual_prompt"],
+            "properties": {
+              "sequence": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "narration": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              "visual_prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "overlay_text": {
+                "type": ["string", "null"],
+                "maxLength": 300
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "cta": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "keywords": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "uniqueItems": true
+        },
+        "is_fact_checked": {
+          "type": "boolean",
+          "default": false
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "caption": {
+      "type": "object",
+      "required": ["body", "hashtags", "profile_id"],
+      "properties": {
+        "body": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        "hashtags": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "pattern": "^#[^\\s#]{1,100}$"
+          },
+          "uniqueItems": true
+        },
+        "profile_id": {
+          "type": "string",
+          "description": "Content profile yang menentukan panjang dan gaya, bukan aturan platform tertentu."
+        },
+        "call_to_action": {
+          "type": ["string", "null"],
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "media_assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/mediaAsset"
+      }
+    },
+    "voiceover": {
+      "type": ["object", "null"],
+      "required": ["artifact_uri", "engine", "voice_id", "duration_sec", "language"],
+      "properties": {
+        "artifact_uri": {
+          "$ref": "#/$defs/artifactUri"
+        },
+        "engine": {
+          "type": "string",
+          "enum": ["edge_tts", "piper", "coqui", "other"]
+        },
+        "voice_id": {
+          "type": "string"
+        },
+        "duration_sec": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "language": {
+          "type": "string",
+          "default": "id-ID"
+        },
+        "sample_rate_hz": {
+          "type": ["integer", "null"],
+          "minimum": 8000,
+          "maximum": 192000
+        }
+      },
+      "additionalProperties": false
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "platform_profiles": {
+      "type": "object",
+      "description": "Opsional; payload final dibuat oleh adapter dan tidak menggantikan shared content package.",
+      "properties": {
+        "tiktok": {
+          "$ref": "#/$defs/platformProfile"
+        },
+        "instagram": {
+          "$ref": "#/$defs/platformProfile"
+        },
+        "facebook": {
+          "$ref": "#/$defs/platformProfile"
+        }
+      },
+      "additionalProperties": false
+    },
+    "quality_checks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/qualityCheck"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retention_until": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "artifactUri": {
+      "type": "string",
+      "pattern": "^(artifact|asset)://[A-Za-z0-9._/-]+$"
+    },
+    "mediaAsset": {
+      "type": "object",
+      "required": ["asset_id", "asset_uri", "media_type", "sha256", "source"],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "asset_uri": {
+          "$ref": "#/$defs/artifactUri"
+        },
+        "media_type": {
+          "type": "string",
+          "enum": ["image", "video", "audio"]
+        },
+        "width": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "height": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "duration_sec": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["provider", "source_url", "terms_url", "retrieved_at"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_asset_id": {
+          "type": ["string", "null"]
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "author": {
+          "type": ["string", "null"]
+        },
+        "terms_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "attribution_required": {
+          "type": "boolean"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["artifact_id", "artifact_uri", "artifact_type", "mime_type", "sha256", "size_bytes"],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "artifact_uri": {
+          "$ref": "#/$defs/artifactUri"
+        },
+        "artifact_type": {
+          "type": "string",
+          "enum": ["video", "audio", "image", "carousel_manifest", "caption", "thumbnail", "manifest"]
+        },
+        "mime_type": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "width": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "height": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "duration_sec": {
+          "type": ["number", "null"],
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "platformProfile": {
+      "type": "object",
+      "properties": {
+        "caption_override": {
+          "type": ["string", "null"]
+        },
+        "title": {
+          "type": ["string", "null"]
+        },
+        "hashtags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mentions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "privacy": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "qualityCheck": {
+      "type": "object",
+      "required": ["check_id", "status", "checked_at"],
+      "properties": {
+        "check_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PASSED", "FAILED", "WARNING"]
+        },
+        "message": {
+          "type": ["string", "null"]
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

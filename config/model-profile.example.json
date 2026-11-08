@@ -1,0 +1,34 @@
+{
+  "profile_id": "nemotron-local-candidate",
+  "provider": "local",
+  "model_id": "REPLACE_WITH_NEMOTRON_MODEL_ID",
+  "model_revision": "PIN_A_REVISION",
+  "endpoint_kind": "local",
+  "base_url_reference": "NEMOTRON_BASE_URL",
+  "serving_engine": "vllm",
+  "serving_engine_version": null,
+  "quantization": null,
+  "context_limit": 32768,
+  "max_output_tokens": 8192,
+  "tool_calling": true,
+  "tool_parser": "REPLACE_WITH_MODEL_TOOL_PARSER",
+  "structured_output": true,
+  "reasoning_mode": "configurable",
+  "temperature": 0.6,
+  "top_p": 0.95,
+  "timeout_seconds": 120,
+  "hardware_probe": {
+    "gpu_name": null,
+    "vram_bytes": null,
+    "ram_bytes": null,
+    "latency_ms_p50": null,
+    "tokens_per_second": null,
+    "probe_at": null
+  },
+  "known_limitations": [
+    "Replace model_id and tool_parser after capability probe.",
+    "Do not enable external calls until local mock tests pass."
+  ],
+  "status": "CANDIDATE",
+  "created_at": "2026-11-08T00:00:00Z"
+}

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+!config/.env.example
+config/*.local.json
+config/*secret*.json
+
+# Runtime and generated artifacts
+artifacts/
+logs/
+*.log
+coverage/
+
+# Local AI/model cache
+models/
+checkpoints/
+
+# Task-local intermediate files
+.work/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# OpenCode local state; keep project examples only
+.opencode/

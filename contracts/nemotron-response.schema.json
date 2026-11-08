@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://n8n-tt-outpost.local/schemas/nemotron-response.schema.json",
+  "title": "NemotronAdapterResponse",
+  "type": "object",
+  "required": ["request_id", "model", "content", "tool_calls", "finish_reason", "usage"],
+  "properties": {
+    "request_id": {"type": "string", "minLength": 1},
+    "model": {"type": "string", "minLength": 1},
+    "content": {"type": ["string", "null"]},
+    "tool_calls": {"type": "array", "items": {"$ref": "tool-call.schema.json"}},
+    "finish_reason": {"type": ["string", "null"]},
+    "usage": {
+      "type": "object",
+      "properties": {
+        "prompt_tokens": {"type": ["integer", "null"], "minimum": 0},
+        "completion_tokens": {"type": ["integer", "null"], "minimum": 0},
+        "total_tokens": {"type": ["integer", "null"], "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
