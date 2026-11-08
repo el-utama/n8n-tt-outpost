@@ -82,6 +82,51 @@ Produk final mengutamakan **shared visual/audio asset**. Metadata dan delivery p
 
 ---
 
+## Estimasi Waktu Realistis ke Production-Ready
+
+Estimasi berikut mengasumsikan **1 engineer (Nemotron + human review)** bekerja part-time (~15–20 jam/minggu) dengan siklus **Plan → Build → Verify → Review** per task, termasuk waktu untuk testing, fixing, dan gate review. Tidak termasuk waktu setup environment awal.
+
+| Fase | Ruang Lingkup Utama | Estimasi Durasi | Kumulatif |
+|---|---|---|---|
+| **Gate 0** | Freeze schema, design, rules, operator guide; repo hygiene; CI baseline | 1–2 minggu | 1–2 mgg |
+| **F1 Foundation** | PostgreSQL schema & migration, job state machine, idempotency, artifact manager, secret refs, hardware probe, observability scaffolding | 3–4 minggu | 4–6 mgg |
+| **F2 Content Engine** | Theme processor, ideation, media sourcing (license metadata), caption writer, TTS (Edge-TTS/Piper), video composer (FFmpeg 9:16), carousel fallback, content QC | 4–6 minggu | 8–12 mgg |
+| **F3 Telegram Manual** | Consumer (single/distributed lock), command router, allowlist, ownership, delivery, secure expiring links, cancellation, cleanup, notification | 3–4 minggu | 11–16 mgg |
+| **MVP Gate** | End-to-end dry-run, Telegram Manual acceptance, migration/restore test, secret scan, rollback plan | 2–3 minggu | 13–19 mgg |
+| **F4 Scheduler/Queue** | Scheduler (Asia/Jakarta), queue manager (lease, concurrency, backpressure, retry, DLQ), policy engine, account age gate, policy profile CRUD, preflight checks | 4–5 minggu | 17–24 mgg |
+| **F5 Adapter (per platform)** | Adapter contract, TikTok adapter + mock, Instagram adapter + mock, Facebook adapter + mock, batch approval (Semi-Auto), Full-Auto preflight, emergency stop, result verification, per-platform partial failure handling | 6–8 minggu | 23–32 mgg |
+| **Production Gate** | Provider canary, observability hardening, secret rotation drill, emergency-stop test, acceptance sign-off, runbook | 2–3 minggu | 25–35 mgg |
+| **F6 VPS Migration** (opsional) | Infrastructure as code, CI/CD, monitoring, backup/restore automation, scaling test | 3–4 minggu | 28–39 mgg |
+
+### Ringkasan Timeline
+
+| Target | Estimasi Kalender (part-time ~15–20 jam/mgg) |
+|---|---|
+| **MVP Manual-only (F1–F3 + MVP Gate)** | **3–5 bulan** |
+| **Produk Final Full (F1–F5 + Production Gate)** | **6–8 bulan** |
+| **Termasuk VPS/F6 (jika dibutuhkan)** | **7–9 bulan** |
+
+### Faktor Risiko yang Bisa Memperpanjang
+
+- **Provider API instability** — TikTok/IG/FB API tidak resmi berubah tanpa notifikasi; adapter butuh maintenance buffer.
+- **Session/2FA/CAPTCHA handling** — Bisa butuh browser automation layer yang kompleks.
+- **Content QC false positives/negatives** — Iterasi tuning threshold butuh data real.
+- **Hardware probe variance** — GPU/encoder fallback butuh validasi di mesin target.
+- **Human-in-the-loop review latency** — Setiap gate butuh approval manual; bisa jadi bottleneck.
+- **Scope creep** — Menambah fitur di tengah jalan (mis. dashboard web, multi-user) akan geser timeline signifikan.
+
+### Cara Mempercepat (Tanpa Mengorbankan Gate)
+
+1. **Parallelize F1–F2** — Schema/db dan content engine bisa dikerjakan simultan jika resource memadai.
+2. **Mock-first adapter** — F5 adapter development pakai mock provider dari awal; real provider hanya di canary phase.
+3. **Time-box spikes** — Setiap unknown (mis. platform API) dibatasi 2–3 hari spike, lalu keputusan lanjut/tunda.
+4. **Reuse existing tooling** — n8n workflow untuk orchestration, FFmpeg wrapper existing, Ollama lokal.
+5. **Document decisions immediately** — Hindari re-work karena asumsi tersembunyi.
+
+> **Catatan:** Estimasi ini **bukan komitmen**. Ini adalah *planning baseline* untuk alignment tim/stakeholder. Setiap Gate wajib memiliki evidence (test passing, migration verified, acceptance signed) sebelum lanjut ke fase berikutnya. Lihat `docs/PRODUCTION_READINESS_EXECUTION_PLAN.md` untuk definisi *Definition of Done* per gate.
+
+---
+
 ## Prinsip Arsitektur Kunci
 
 1. **Orchestrator terkontrol** — Satu Agent Orchestrator membaca job state, memilih skill, memanggil sub-workflow, mengevaluasi output, dan meminta approval. Tidak boleh melewati deterministic policy gate.
